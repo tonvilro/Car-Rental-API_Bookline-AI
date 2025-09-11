@@ -30,6 +30,22 @@ class BookingController:
         if not car.available:
             raise ValueError(f"Car {car_id} is not available")
         
+        # Check for date conflicts with existing bookings
+        bookings = self.data_service.get_all_bookings()
+        for existing_booking in bookings:
+            if (existing_booking.car_id == car_id and 
+                existing_booking.status == "confirmed"):
+                existing_start = existing_booking.start_date.date()
+                existing_end = existing_booking.end_date.date()
+                
+                # Check date overlap: new booking overlaps if start <= existing_end and end >= existing_start
+                if (start_date <= existing_end and end_date >= existing_start):
+                    raise ValueError(f"Car {car_id} is already booked from {existing_start} to {existing_end}")
+        
+        # Validate dates
+        if start_date < date.today():
+            raise ValueError("Cannot book dates in the past")
+        
         # Calculate total price
         duration_days = (end_date - start_date).days
         if duration_days <= 0:
