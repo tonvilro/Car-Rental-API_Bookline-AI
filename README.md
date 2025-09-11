@@ -36,6 +36,7 @@ The application follows a layered based approach. MVC. It keeps it all separated
 ### Other Design Decisions
 - **Pydantic Models**: Helps with data validation and model definition
 - **Pytest**: Helps with easy unit testing
+- **Docker Compose**: For now the API data is stored in JSON files but in the future if it is stored in a DB it will be very easy to add to the system. We will need to make some changes in the data service as it will now be accessing a DB. We could use the SQLAlchemy library to do so along with Alembic for the migrations.
 
 ### Requisite Decisions
 - **Booking Status**: New bookings are created with "confirmed" status by default
