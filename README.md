@@ -37,6 +37,12 @@ The application follows a layered based approach. MVC. It keeps it all separated
 - **Pydantic Models**: Helps with data validation and model definition
 - **Pytest**: Helps with easy unit testing
 
+### Requisite Decisions
+- **Booking Status**: New bookings are created with "confirmed" status by default
+- **Is Car Avilable**: Car must be marked as available true and not have conflicting bookings
+- **Date Validation**: No bookings allowed for past dates. Must be >= today
+- **Booking IDs**: Booking IDs use format: "BOOKING-{uuid}"
+
 ## How to Run
 
 ### Prerequisites
