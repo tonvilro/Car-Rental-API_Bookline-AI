@@ -1,6 +1,7 @@
 """
 Simple unit tests for controllers - testing business logic only
 """
+import pytest
 from datetime import date
 from unittest.mock import Mock
 from app.controllers.car_controller import CarController
@@ -9,29 +10,48 @@ from app.models.car import Car
 from app.models.booking import Booking
 
 
+@pytest.fixture
+def sample_cars():
+    """Sample cars"""
+    return [
+        Car(id="car_001", brand="Porsche", model="GT3", year=2023, daily_price=450.0,
+            available=True, plate="ABC123", color="White", kilometers=1000),
+        Car(id="car_002", brand="Audi", model="RS6", year=2022, daily_price=380.0,
+            available=False, plate="DEF456", color="Black", kilometers=2000),
+        Car(id="car_003", brand="Audi", model="RS6", year=2022, daily_price=380.0,
+            available=True, plate="XYZ789", color="Silver", kilometers=15000)
+    ]
+
+
+@pytest.fixture
+def sample_booking():
+    """Sample booking"""
+    return Mock(
+        car_id="car_001", 
+        status="confirmed",
+        start_date=Mock(date=Mock(return_value=date(2025, 12, 10))),
+        end_date=Mock(date=Mock(return_value=date(2025, 12, 15)))
+    )
+
+
 ## GET AVAILABLE CARS UNIT TESTS
 
-def test_car_controller_filters_available_cars():
+def test_car_controller_filters_available_cars(sample_cars):
     """Car Controller returns only available cars"""
     controller = CarController()
 
     # Mock data service
-    mock_cars = [
-        Car(id="car_001", brand="Porsche", model="GT3", year=2023, daily_price=450.0, 
-            available=True, plate="ABC123", color="White", kilometers=1000),
-        Car(id="car_002", brand="Audi", model="RS6", year=2022, daily_price=380.0,
-            available=False, plate="DEF456", color="Black", kilometers=2000) # Not available
-    ]
-    controller.data_service.get_all_cars = Mock(return_value=mock_cars)
+    controller.data_service.get_all_cars = Mock(return_value=sample_cars)
     controller.data_service.get_all_bookings = Mock(return_value=[])
     
     # Test
     result = controller.get_available_cars()
     
-    # Only available car should be returned
-    assert len(result) == 1
-    assert result[0].id == "car_001"
-    assert result[0].brand == "Porsche"
+    # Only available cars should be returned (car_001 and car_003)
+    assert len(result) == 2
+    available_ids = {car.id for car in result}
+    assert available_ids == {"car_001", "car_003"}
+    assert all(car.available for car in result)
 
 
 def test_car_controller_date_filtering():
@@ -74,9 +94,7 @@ def test_booking_controller_validates_car_exists():
     controller.data_service.get_all_cars = Mock(return_value=[])
     
     # Test booking invalid car
-    exception_raised = False
-    exception_message = ""
-    try:
+    with pytest.raises(ValueError, match="not found"):
         controller.create_booking(
             car_id="invalid",
             customer_name="Ton Vilà", 
@@ -84,23 +102,14 @@ def test_booking_controller_validates_car_exists():
             start_date=date(2025, 12, 1),
             end_date=date(2025, 12, 3)
         )
-    except ValueError as e:
-        exception_raised = True
-        exception_message = str(e)
-    
-    assert exception_raised
-    assert "not found" in exception_message
 
 
-def test_booking_controller_calculates_price():
+def test_booking_controller_calculates_price(sample_cars):
     """Booking Controller calculates total price correctly"""
     controller = BookingController()
     
-    # Mock car (daily price 380)
-    mock_car = Car(id="car_003", brand="Audi", model="RS6", year=2022, daily_price=380.0,
-                   available=True, plate="XYZ789", color="Silver", kilometers=15000)
-    
-    controller.data_service.get_all_cars = Mock(return_value=[mock_car])
+    # Use car_003 (daily price 380)
+    controller.data_service.get_all_cars = Mock(return_value=sample_cars)
     controller.data_service.get_all_bookings = Mock(return_value=[])
     controller.data_service.create_booking = Mock(return_value=True)
     
@@ -131,9 +140,7 @@ def test_booking_controller_prevents_past_dates():
     controller.data_service.get_all_bookings = Mock(return_value=[])
     
     # Test past date booking
-    exception_raised = False
-    exception_message = ""
-    try:
+    with pytest.raises(ValueError, match="past"):
         controller.create_booking(
             car_id="car_001",
             customer_name="Test Customer",
@@ -141,12 +148,6 @@ def test_booking_controller_prevents_past_dates():
             start_date=date(2025, 9, 1),  # Past date
             end_date=date(2025, 9, 3)
         )
-    except ValueError as e:
-        exception_raised = True
-        exception_message = str(e)
-    
-    assert exception_raised
-    assert "past" in exception_message
 
 
 def test_booking_controller_detects_overlapping_dates():
@@ -169,9 +170,7 @@ def test_booking_controller_detects_overlapping_dates():
     controller.data_service.get_all_bookings = Mock(return_value=[existing_booking])
     
     # Test overlapping booking: Dec 12-17 (overlaps with Dec 10-15)
-    exception_raised = False
-    exception_message = ""
-    try:
+    with pytest.raises(ValueError, match="already booked.*2025-12-10.*2025-12-15"):
         controller.create_booking(
             car_id="car_001",
             customer_name="Test Customer",
@@ -179,11 +178,3 @@ def test_booking_controller_detects_overlapping_dates():
             start_date=date(2025, 12, 12),  # Overlaps existing booking
             end_date=date(2025, 12, 17)
         )
-    except ValueError as e:
-        exception_raised = True
-        exception_message = str(e)
-    
-    assert exception_raised
-    assert "already booked" in exception_message
-    assert "2025-12-10" in exception_message  # Should show existing booking dates
-    assert "2025-12-15" in exception_message

@@ -15,9 +15,3 @@ app.include_router(booking_router)
 @app.get("/")
 async def root():
     return {"Welcome to the Car Rental API"}
-
-@app.get("/data-path")
-async def data_path():
-    data_path = os.getenv("DATA_PATH", "data")
-    logger.info(f"Data path is set to: {data_path}")
-    return {"data_path": data_path}
