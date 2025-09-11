@@ -45,6 +45,5 @@ class CarController:
             
             if not is_booked:
                 available_cars.append(car)
-        
-        logger.info(f"Found {len(available_cars)} cars available on {date}")
+                
         return available_cars

@@ -70,6 +70,5 @@ class BookingController:
         success = self.data_service.create_booking(booking)
         if not success:
             raise ValueError("Failed to create booking")
-
-        logger.info(f"Created booking {booking.id} for car {car_id}")
+        
         return booking
