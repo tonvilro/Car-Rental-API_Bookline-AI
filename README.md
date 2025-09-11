@@ -1,2 +1,1 @@
-# Bookline-AI
-Bookline AI hiring process task
+# Car Rental API
