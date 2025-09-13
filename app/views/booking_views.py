@@ -32,11 +32,9 @@ async def create_booking(booking_request: BookingRequest):
             start_date=booking_request.start_date,
             end_date=booking_request.end_date
         )
-        logger.info(f"Booking created successfully: {booking.id}")
         return booking
     
     except ValueError as e:
-        logger.error(f"Booking validation error: {e}")
         raise HTTPException(status_code=400, detail=str(e))
     
     except Exception as e:

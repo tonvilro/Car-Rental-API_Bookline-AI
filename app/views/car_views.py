@@ -18,8 +18,10 @@ async def get_available_cars(date: Optional[date] = Query(None, description="Fil
     """
     try:
         cars = car_controller.get_available_cars(date=date)
-        logger.info(f"Available cars on {date}: {len(cars)} cars")
         return cars
+    
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     
     except Exception as e:
         logger.error(f"Error retrieving available cars: {e}")

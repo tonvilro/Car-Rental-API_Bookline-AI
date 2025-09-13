@@ -39,7 +39,7 @@ The application follows a layered based approach. MVC. It keeps it all separated
 - **Docker Compose**: For now the API data is stored in JSON files but in the future if it is stored in a DB it will be very easy to add to the system. We will need to make some changes in the data service as it will now be accessing a DB. We could use the SQLAlchemy library to do so along with Alembic for the migrations.
 
 ### Requisite Decisions
-- **Booking Status**: New bookings are created with "confirmed" status by default
+- **Booking Status**: New bookings are created with "confirmed" status by default. In the future this could include states like cancelled, pending payment, finished, customer didn't show up...
 - **Is Car Avilable**: Car must be marked as available true and not have conflicting bookings
 - **Date Validation**: No bookings allowed for past dates. Must be >= today
 - **Booking IDs**: Booking IDs use format: "BOOKING-{uuid}"
