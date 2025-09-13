@@ -51,8 +51,8 @@ The application follows a layered based approach. MVC. It keeps it all separated
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/tonvilro/Bookline-AI.git
-   cd Bookline-AI
+   git clone https://github.com/tonvilro/Car-Rental-API_Bookline-AI.git
+   cd Car-Rental-API_Bookline-AI
    ```
 
 2. **Create environment file**
