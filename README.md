@@ -65,17 +65,17 @@ The application follows a layered based approach. MVC. It keeps it all separated
    docker compose up --build -d
    ```
 
-3. **Access the API**
+4. **Access the API**
    - API: http://localhost:8000
    - Docs 1: http://localhost:8000/docs
    - Docs 2: http://localhost:8000/redoc
 
+## Sample Data
+
+The repository includes 3 vehicle JSON data for easy testing. This way the user can test it directly not having to manually create vehicles. Bookings are empty.
 
 ## Run Tests
 
-### Running Unit Tests
-
-**With Docker:**
 ```bash
 # Make sure container is running first
 docker compose up -d
